@@ -224,4 +224,59 @@ pd.DataFrame([{k: e.get(k) for k in ('t', 'kind', 'tool', 'name', 'passed', 'que
 # plan = llm_planner('оцінити біомасу і перевірити модель просторово', reg, client)
 # for s in plan: print(s)""",
 ])
+# ---------------------------------------------------------------- 04
+nb("04_sam3_segmentation.ipynb", [
+    "md:" + f"""# 04. Сегментація об'єктів моделлю SAM 3 за текстовим поняттям
+
+{badge('04_sam3_segmentation.ipynb')}
+
+SAM 3 (Meta AI, 2025) будує маски об'єктів за коротким текстовим поняттям («tree», «forest», «field») або за кліком.
+Записник показує, як застосувати модель до фрагмента композиту Sentinel-2 ділянки Боярської ЛДС і як перевірити результат.
+
+**Вимоги:** середовище Colab з GPU; доступ до моделі `facebook/sam3` на Hugging Face (потрібно прийняти умови ліцензії і додати токен `HF_TOKEN` у Secrets Colab).
+
+**Застереження.** Для знімків 10 м SAM 3 дає грубі маски: модель навчена переважно на наземних фото. Для кількісних оцінок (площа полезахисних смуг, крони дерев) потрібні знімки 0,5–3 м і модель, дотренована на локальній розмітці, а маски перевіряє дослідник.""",
+    SETUP,
+    """!pip -q install -U transformers accelerate
+import torch, requests, numpy as np
+from PIL import Image
+from io import BytesIO
+from kyivforest import ee_data as D
+rgb = D.sentinel2().visualize(bands=['B4', 'B3', 'B2'], min=0, max=0.15)
+img = Image.open(BytesIO(requests.get(D.preview_url(rgb, 1024)).content)).convert('RGB')   # UTM 36N
+img""",
+    """from google.colab import userdata
+from huggingface_hub import login
+login(userdata.get('HF_TOKEN'))
+from transformers import Sam3Processor, Sam3Model
+dev = 'cuda' if torch.cuda.is_available() else 'cpu'
+processor = Sam3Processor.from_pretrained('facebook/sam3')
+model = Sam3Model.from_pretrained('facebook/sam3').to(dev)""",
+    """def segment(concept, thr=0.4):
+    inputs = processor(images=img, text=concept, return_tensors='pt').to(dev)
+    with torch.no_grad():
+        out = model(**inputs)
+    res = processor.post_process_instance_segmentation(out, threshold=thr, mask_threshold=0.5,
+                                                       target_sizes=inputs.get('original_sizes').tolist())[0]
+    return res
+
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+for a, concept in zip(ax, ['forest', 'agricultural field', 'building']):
+    r = segment(concept)
+    a.imshow(img)
+    for m in r['masks']:
+        a.imshow(np.ma.masked_equal(m.cpu().numpy().astype(int), 0), alpha=.45, cmap='autumn')
+    a.set_title(f"«{concept}»: {len(r['masks'])} об'єктів"); a.axis('off')
+plt.tight_layout()""",
+    "md:## Перевірка дослідником\n\nПорівняйте маску «forest» з ESA WorldCover (клас 10) і обчисліть IoU. Розбіжності на межах полів і в забудові показують, де текстова підказка спрацьовує гірше.",
+    """wc = D.forest_mask().visualize(min=0, max=1, palette=['000000', 'ffffff'])
+ref = np.array(Image.open(BytesIO(requests.get(D.preview_url(wc, 1024)).content)).convert('L').resize(img.size)) > 127
+r = segment('forest')
+pred = np.zeros(ref.shape, bool)
+for m in r['masks']:
+    pred |= m.cpu().numpy().astype(bool)
+iou = (pred & ref).sum() / max((pred | ref).sum(), 1)
+print(f'IoU маски SAM 3 «forest» і WorldCover: {iou:.2f}')""",
+])
 print("ok")
