@@ -29,10 +29,9 @@ l4b_mean = l4b.reduceRegion(ee.Reducer.mean(), D.aoi(), 1000).getInfo()['MU']
 pools = S.biomass_to_pools(st['agb_tot_sum'])
 vis = {'min': 0, 'max': 350, 'palette': ['f2efe6', 'c9d8c5', '8fb49a', '4f8a6f', '14524a', '0c3a34']}
 bg = ee.Image(1).visualize(palette=['ffffff']).clip(D.aoi())
-thumb = ee.ImageCollection([bg, agb.visualize(**vis)]).mosaic().getThumbURL(
-    {'region': D.aoi(), 'dimensions': 1400, 'format': 'png'})
-s2rgb = D.sentinel2().visualize(bands=['B4', 'B3', 'B2'], min=0.0, max=0.15).getThumbURL(
-    {'region': D.aoi(), 'dimensions': 1400, 'format': 'png'})
+# previews in UTM 36N (EPSG:32636) so that proportions are correct
+s2rgb = D.preview_url(D.sentinel2().visualize(bands=['B4', 'B3', 'B2'], min=0.0, max=0.15))
+thumb = None  # AGB preview: export GeoTIFF in UTM 36N with D.export_map(agb)
 
 summary = {
     'n_samples': int(len(df)), 'n_blocks': int(df.block.nunique()),

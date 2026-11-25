@@ -97,6 +97,10 @@ print(f'Площа лісу: {forest_ha:,.0f} га; середня AGB: {agb_tot
 vis = {'min': 0, 'max': 350, 'palette': ['f2efe6', 'c9d8c5', '8fb49a', '4f8a6f', '14524a', '0c3a34']}
 m = geemap.Map(); m.centerObject(D.aoi(), 11)
 m.addLayer(agb, vis, 'AGB, Мг/га'); m.add_colorbar(vis, label='AGB, Мг/га'); m""",
+    "md:### Проєкція\n\nІнтерактивна карта geemap показана в Web Mercator лише для перегляду. Площі обчислено через `ee.Image.pixelArea()` (фактична площа пікселя). Для друку і ГІС карту експортують у WGS 84 / UTM 36N (EPSG:32636), 30 м.",
+    """from IPython.display import Image
+print(D.export_map(agb).status()['state'], '– експорт GeoTIFF у UTM 36N запущено (вкладка Tasks / Google Drive)')
+Image(url=D.preview_url(D.sentinel2().visualize(bands=['B4', 'B3', 'B2'], min=0, max=0.15)), width=480)""",
     "md:## 4. Що перевіряє дослідник\n\n- чи не завеликий розрив між випадковою і просторовою CV (ознака перенавчання на локальну автокореляцію);\n- чи немає систематичного зміщення на високих запасах (насичення оптичних індексів);\n- чи узгоджується середнє значення з GEDI L4B і з регіональними даними (записник 02);\n- для звітності потрібні наземні дані: GEDI є допоміжним еталоном.",
 ])
 

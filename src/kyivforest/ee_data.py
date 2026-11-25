@@ -96,3 +96,19 @@ def area_stats(agb, region=None, scale=30):
              .reduceRegion(ee.Reducer.mean().combine(ee.Reducer.sum(), sharedInputs=True),
                            region, scale, maxPixels=1e10, tileScale=4))
     return st
+
+
+def export_map(agb, folder="Kyiv_LandShift_AgenticAI_2026", name="boyarka_agb_rf_30m"):
+    """GeoTIFF in WGS 84 / UTM 36N (EPSG:32636), 30 m. Areas and maps for print use this projection;
+    interactive maps (geemap, Code Editor) are Web Mercator and serve only for viewing."""
+    task = ee.batch.Export.image.toDrive(image=agb.toFloat(), description=name, folder=folder,
+                                         region=aoi(), scale=30, crs=f"EPSG:{C.UTM_EPSG}", maxPixels=1e10)
+    task.start()
+    return task
+
+
+def preview_url(image, dimensions=640):
+    """PNG preview in UTM 36N, so that proportions are not distorted."""
+    utm = ee.Projection(f"EPSG:{C.UTM_EPSG}")
+    reg = aoi().transform(utm, 1).bounds(1, utm)
+    return image.getThumbURL({"region": reg, "crs": f"EPSG:{C.UTM_EPSG}", "dimensions": dimensions, "format": "png"})
