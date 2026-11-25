@@ -1,0 +1,7 @@
+earthengine-api>=1.4
+geemap>=0.35
+numpy
+pandas
+scikit-learn>=1.4
+pyproj
+matplotlib
