@@ -131,6 +131,8 @@ print('Надземний запас вуглецю, тис. т C:', agbT.multip
 print('Еквівалент CO₂, тис. т:', agbT.multiply(CARBON_FRACTION).multiply(44 / 12).divide(1000));
 
 // ---------- 7. Експорт (запускає користувач у вкладці Tasks) ----------
+// Вікно карти Code Editor показує Web Mercator лише для перегляду.
+// Карту для друку і ГІС експортуємо у WGS 84 / UTM 36N (EPSG:32636); площі вище пораховано через pixelArea().
 Export.image.toDrive({image: agb, description: 'boyarka_agb_rf_30m', folder: 'Kyiv_LandShift_AgenticAI_2026',
                       region: aoi, scale: 30, crs: 'EPSG:32636', maxPixels: 1e10});
 Export.table.toDrive({collection: oof, description: 'boyarka_gedi_spatial_cv',
