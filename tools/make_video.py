@@ -157,13 +157,13 @@ for fi in range(TOT):
         if k2 > 0:
             mx, my = 1430, 420
             d.line([(vx + 470, 500), (vx + 470 + int(60 * k2), 500)], fill=GREY, width=4)
-            d.rounded_rectangle([mx, my, mx + 300, my + 170], radius=18, fill=DARK)
+            d.rectangle([mx, my, mx + 300, my + 170], fill=DARK)
             d.text((mx + 30, my + 30), "Random forest", font=fH, fill=(251, 250, 247))
             d.text((mx + 30, my + 85), "300 дерев рішень", font=fB, fill=(185, 204, 195))
         k3 = ease((t - 11.3) / 1.0)
         if k3 > 0:
             d.line([(1580, 595), (1580, 595 + int(60 * k3))], fill=GREY, width=4)
-            d.rounded_rectangle([1430, 670, 1730, 790], radius=18, fill=OCHRE)
+            d.rectangle([1430, 670, 1730, 790], fill=OCHRE)
             d.text((1460, 690), "AGB пікселя", font=fB, fill=(251, 250, 247))
             d.text((1460, 730), f"{agb_val - 25}–{agb_val + 25} Мг/га", font=fH, fill=(251, 250, 247))
     elif t < 19.0:  # scene 4: pixel-by-pixel map fill
