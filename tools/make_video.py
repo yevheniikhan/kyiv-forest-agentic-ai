@@ -165,7 +165,7 @@ for fi in range(TOT):
             d.line([(1580, 595), (1580, 595 + int(60 * k3))], fill=GREY, width=4)
             d.rectangle([1430, 670, 1730, 790], fill=OCHRE)
             d.text((1460, 690), "AGB пікселя", font=fB, fill=(251, 250, 247))
-            d.text((1460, 730), f"{agb_val - 25}–{agb_val + 25} Мг/га", font=fH, fill=(251, 250, 247))
+            d.text((1460, 730), f"{agb_val - 25}–{agb_val + 25} т/га", font=fH, fill=(251, 250, 247))
     elif t < 19.0:  # scene 4: pixel-by-pixel map fill
         header(d, "Модель обходить усі пікселі і будує карту біомаси", "кожен піксель оцінюється окремо, далі – суми і перевірка")
         S = 560
@@ -183,16 +183,16 @@ for fi in range(TOT):
             d.rectangle([x0 + j * cell, y0 + i * cell, x0 + (j + 1) * cell, y0 + (i + 1) * cell], outline=OCHRE, width=4)
         d.text((x0 + S + 120, 330), f"оброблено пікселів: {n_done} з {N * N}", font=fM, fill=TXT)
         d.text((x0 + S + 120, 390), "на всій ділянці: ≈ 2,2 млн пікселів 30 м", font=fB, fill=GREY)
-        d.text((x0 + S + 120, 450), "перевірки після кроку: діапазон 0–600 Мг/га,", font=fB, fill=GREY)
+        d.text((x0 + S + 120, 450), "перевірки після кроку: діапазон 0–600 т/га,", font=fB, fill=GREY)
         d.text((x0 + S + 120, 490), "частка пропусків, просторова крос-валідація", font=fB, fill=GREY)
     else:  # scene 5: final map
-        header(d, "Результат: карта надземної біомаси, 30 м", "середня 101 Мг/га; рішення про використання ухвалює дослідник")
+        header(d, "Результат: карта надземної біомаси, 30 м", "середня 101 т/га; рішення про використання ухвалює дослідник")
         full = agbm.resize((560, 582))
         im.paste(full, (W // 2 - 280, 235))
         pal = [(232, 217, 168), (185, 207, 150), (127, 174, 134), (63, 125, 102), (20, 82, 74), (10, 47, 42)]
         for k_, c in enumerate(pal):
             d.rectangle([W // 2 + 320, 760 - k_ * 70, W // 2 + 345, 830 - k_ * 70], fill=c)
-        d.text((W // 2 + 360, 410), "300+ Мг/га", font=fS, fill=GREY); d.text((W // 2 + 360, 805), "0", font=fS, fill=GREY)
+        d.text((W // 2 + 360, 410), "300+ т/га", font=fS, fill=GREY); d.text((W // 2 + 360, 805), "0", font=fS, fill=GREY)
     # fade transitions between scenes
     for edge in (3.0, 8.0, 13.0, 19.0):
         dt = abs(t - edge)
